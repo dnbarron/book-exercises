@@ -2,15 +2,16 @@
 # (using plotly)
 
 # Load necessary packages (`dplyr`, `ggplot2`, and `plotly`)
-
-
+library(dplyr)
+library(ggplot2)
+library(plotly)
 # Set your working directory using the RStudio menu:
 # Session > Set Working Directory > To Source File Location
 
 # Load the `"data/IHME_WASHINGTON_MORTALITY_RATES_1980_2014.csv` file
 # into a variable `mortality_rates`
 # Make sure strings are *not* read in as factors
-
+mortality_rates <- read.csv("data/IHME_WASHINGTON_MORTALITY_RATES_1980_2014.csv")
 
 # This is actually a very large and rich dataset, but we will only focus on
 # a small subset of it. Create a new data frame `plot_data` by filtering the
@@ -20,17 +21,23 @@
 # - The `cause_name` is "Neoplasms"
 # - The `year_id` is greater than 2004
 # - Only keep the columns `sex`, `year_id`, and `mortality_rate`
-
+plot_data <- mortality_rates %>%
+  filter(location_name == "King County", 
+         sex != 'Both', 
+         cause_name == "Neoplasms",
+         year_id > 2004) %>%
+  select(sex, year_id, mortality_rate)
 
 # Using ggplot2 (recall chapter 16), make a grouped ("dodge") bar chart of
 # mortality rates each year, with different bars for each sex.
 # Store this plot in a variable `mort_plot`
-
+mort_plot <- ggplot(plot_data) + geom_col(aes(x = year_id, y = mortality_rate, fill = sex),
+                             position = "dodge")
 
 # To make this plot interactive, pass `mort_plot` to the `ggplotly()` function
 # (which is part of the `plotly` package). This will make your plot interactive!
 
-
+ggplotly(mort_plot)
 # As an alternative to making a ggplot chart interactive, we can build the same
 # plot using the plotly API directly
 
@@ -40,7 +47,13 @@
 # (make sure to specify these as *formulas*)
 # Also set the plot type to "bar". Store the result in a variable.
 
-
+plot_ly(
+  data = plot_data,
+  type = "bar",
+  x = ~year_id,
+  y = ~mortality_rate,
+  color = ~sex
+)
 
 # You should see that the cancer mortaility rates for female and males 
 # each year are plotted next to each other.
@@ -48,3 +61,15 @@
 # by adding a layout to the plot. Add a title for the overall plot, and
 # a title for each axes.
 
+plot_ly(
+  data = plot_data,
+  type = "bar",
+  x = ~year_id,
+  y = ~mortality_rate,
+  color = ~sex
+) %>%
+  layout(
+    title = "Mortality rate by sex",
+    xaxis = list(title = "Year"),
+    yaxis = list(title = "Mortality rate")
+  )

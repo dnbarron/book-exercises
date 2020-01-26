@@ -4,6 +4,7 @@ library("ggplot2")
 
 # Read data file
 income_growth <- read.csv("data/income_growth_1980-2014.csv")
+names(income_growth)[1] <- "Income.Percentile"
 
 # Define a server function
 server <- function(input, output) {
